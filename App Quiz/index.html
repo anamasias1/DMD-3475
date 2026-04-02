@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            h1 {
+                color: pink;
+                font-family: "Arial Black", sans-serif;
+                font-size: 40px;
+            }
+
+            #songList {
+            width: fit-content;
+            margin: 0 auto;
+            margin-top: 20px;
+            list-style-position: outside;
+            text-align: left;
+            font-size: 22px;
+            font-family: Arial, Helvetica, sans-serif;
+            }
+
+        </style>
+
+        <title>
+            Ana's Amazing Playlist
+        </title>
+
+    </head>
+    
+    <body style="text-align: center;">
+
+        <h1>Ana's Amazing Playlist</h1>
+
+        <input type="text" id="newSong" placeholder="Enter a new song">
+        <button id="addSong">Add Song</button>
+        <button id="sortSongs">Sort Alphabetically</button>
+        <button id="deleteAll">Delete All</button>
+
+        <ol id="songList"></ol>
+
+        <script>
+            var songList = [];
+            var songButton = document.querySelector("#addSong");
+            var songInput = document.querySelector("#newSong");
+            var sortButton = document.querySelector("#sortSongs");
+            var deleteAllButton = document.querySelector("#deleteAll");
+
+            function addSong(song) {
+                songList.push(song);
+            }
+
+            function renderList() {
+                var listElement = document.querySelector('#songList');
+                listElement.innerHTML = "";
+
+                for (var i = 0; i < songList.length; i++) {
+                    var listItem = '<li>' + songList[i] + "</li>";
+                    listElement.innerHTML += listItem;
+                }
+            }
+
+            // This is when the "Add Song" button is clicked!
+            songButton.addEventListener("click", function() {
+
+                // Grab whatever the user typed and trim any spaces
+                var songText = songInput.value.trim();
+
+                // This is so if nothing is entered, no new list is added.
+                if (songText === "") {
+                    return;
+                }
+                // This adds the new song entered to the array
+                addSong(songText);
+
+                // This updates the playlist on the page so that it shows
+                renderList();
+
+                // This clears the input box and puts the cursor back inside it
+                songInput.value = "";
+                songInput.focus();
+            });
+
+            // Sort Alphabetically Button!
+            sortButton.addEventListener("click", function() {
+
+                // When this button is clicked, it alphabetizes the songs.
+                // .sort() rearranges the array in alphabetical order!
+                songList.sort();
+
+                // This updates the page so the new order is listed.
+                // Updates the list to match new array
+                renderList();
+            });
+            // Delete All Button!
+            deleteAllButton.addEventListener("click", function() {
+
+                // This clears the entire playlist by restting the array.
+                // It is replacing the songlist array into an empty one.
+                songList = [];
+
+                // his updates the page to show the empty list.
+                // It is refreshing the page into the empty one.
+                renderList();
+            });
+
+            // My first 3 starting songs
+            addSong("Summertime Sadness");
+            addSong("Bad Habit");
+            addSong("Skyfall");
+
+            renderList();
+        </script>
+    </body>
+</html>
