@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Learning about Objects</title>
+</head>
+
+<body>
+    <h1>Learning about Objects</h1>
+
+    <!-- Add Person Form -->
+    <h2>Add a Person</h2>
+    <input id="newName" placeholder="Name">
+    <input id="newRole" placeholder="Role">
+    <button onclick="addPerson()">Add</button>
+
+    <hr>
+
+    <!-- Directory List -->
+    <h2>Directory</h2>
+    <div id="directory"></div>
+
+    <script>
+        var directory = [
+            { 
+                name: "Ana", 
+                role: "Student" 
+            },
+
+            { 
+                name: "Sarah", 
+                role: "Student" 
+            },
+
+            { 
+                name: "Alyssa", 
+                role: "Student" 
+            }
+        ];
+
+        // Render the directory on the page
+
+        function renderDirectory() {
+            var container = document.getElementById('directory');
+            container.innerHTML = '';
+
+            directory.forEach(function (person, index) {
+                var p = document.createElement('p');
+                p.textContent = person.name + ' - ' + person.role + ' ';
+
+                // Edit button
+                var editBtn = document.createElement('button');
+                editBtn.textContent = "Edit";
+                editBtn.onclick = function () {
+                    editPerson(index);
+                };
+
+                p.appendChild(editBtn);
+                container.appendChild(p);
+            });
+        }
+
+        // Add a new person
+
+        function addPerson() {
+            var name = document.getElementById('newName').value;
+            var role = document.getElementById('newRole').value;
+
+            if (!name || !role) {
+                alert("Please enter both name and role");
+                return;
+            }
+
+            directory.push({ name: name, role: role });
+
+            renderDirectory();
+
+            document.getElementById('newName').value = '';
+            document.getElementById('newRole').value = '';
+        }
+
+        // Edit an existing person
+
+        function editPerson(index) {
+            var person = directory[index];
+
+            var newName = prompt("Edit name:", person.name);
+            var newRole = prompt("Edit role:", person.role);
+
+            if (newName !== null && newRole !== null) {
+                directory[index].name = newName;
+                directory[index].role = newRole;
+                renderDirectory();
+            }
+        }
+
+        // Initial render
+
+        renderDirectory();
+        
+    </script>
+
+</body>
+
+</html>
