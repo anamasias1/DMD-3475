@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <style>
+    h1 {
+        font-family: "Arial", sans-serif;
+        color: purple;
+    }
+</style>
+
+    <title>Dog Breeds</title>
+</head>
+<body>
+
+    <h1><img src="pinkpaw.png" alt="paw print" width="40">
+        Ana's Dog Breed Browser
+        <img src="pinkpaw.png" alt="paw print" width="40"></h1>
+
+    <ul id="breed-list"></ul>
+
+    <script>
+        // To fetch all breeds
+        fetch("https://dogapi.dog/api/v2/breeds")
+            .then(response => response.json())
+            .then(data => {
+                const list = document.getElementById("breed-list");
+
+                // Creates list for each dog breed
+                data.data.forEach(breed => {
+                    const li = document.createElement("li");
+
+                    // Create link to profile page (AI Help)
+                    li.innerHTML = `
+                        <a href="profile.html?id=${breed.id}">
+                            ${breed.attributes.name}
+                        </a>`;
+
+                    list.appendChild(li);
+                });
+            })
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <style>
+    h1 {
+        font-family: "Arial", sans-serif;
+    }
+</style>
+
+    <title>Breed Profile</title>
+</head>
+<body>
+    <h1><img src="pinkpaw.png" alt="paw print" width="40">
+        Breed Profile</h1>
+    <div id="breed-info"></div>
+
+    <script>
+        // Read ID from URL (AI Help)
+        const params = new URLSearchParams(window.location.search);
+        const breedId = params.get("id");
+
+        // Fetch all breeds
+        fetch("https://dogapi.dog/api/v2/breeds")
+            .then(response => response.json())
+            .then(data => {
+                const breed = data.data.find(b => b.id === breedId);
+                const container = document.getElementById("breed-info");
+
+                // Display breed details + Back To List (AI Help)
+                container.innerHTML = `
+                    <h2>${breed.attributes.name}</h2>
+                    <p>${breed.attributes.description}</p>
+                    <a href="index.html">Back to list</a>`;
+            })
+
+    </script>
+</body>
+</html>
