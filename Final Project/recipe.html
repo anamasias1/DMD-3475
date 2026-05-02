@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Recipe Details</title>
+
+    <style>
+        body {
+            background-color: #f7e9d7;
+            font-family: "Fredoka One", Arial, sans-serif;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #8b4513;
+            text-shadow: 2px 2px #f3d7b5;
+        }
+
+        #box {
+            background-color: #fff7ec;
+            padding: 15px;
+            border: 3px solid #d2a679;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0,0,0,0.25);
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>🍪 Recipe Details 🍪</h1>
+
+    <div id="box">
+        <div id="recipe-info"></div>
+    </div>
+
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const recipeId = params.get("id");
+
+    const recipes = JSON.parse(localStorage.getItem("recipes")) || [];
+    const recipe = recipes.find(r => r.id == recipeId);
+
+    const container = document.getElementById("recipe-info");
+
+    if (recipe) {
+        const formattedIngredients = recipe.ingredients
+            .split("\n")
+            .map(i => `<li>${i}</li>`)
+            .join("");
+
+        const formattedInstructions = recipe.instructions
+            .split("\n")
+            .map(step => `<li>${step}</li>`)
+            .join("");
+
+        container.innerHTML = `
+            <h2>${recipe.name}</h2>
+            <p><strong>Type:</strong> ${recipe.type}</p>
+            <p><strong>Difficulty:</strong> ${recipe.difficulty}/5</p>
+            <p><strong>Date Added:</strong> ${recipe.date}</p>
+
+            <h3>Ingredients:</h3>
+            <ul>${formattedIngredients}</ul>
+
+            <h3>Instructions:</h3>
+            <ol>${formattedInstructions}</ol>
+
+            <a href="index.html">Back to list</a>
+        `;
+    } else {
+        container.innerHTML = "<p>Recipe not found.</p><a href='index.html'>Back to list</a>";
+    }
+</script>
+
+</body>
+</html>

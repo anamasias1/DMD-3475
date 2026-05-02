@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cookie Recipe Manager</title>
+
+    <style>
+        body {
+            background-color: #f7e9d7;
+            font-family: "Fredoka One", Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            border: 25px solid transparent;
+            border-image: url('https://i.imgur.com/6YV0ZkT.png') 30 round;
+        }
+
+        h1 {
+            color: #8b4513;
+            text-align: center;
+            text-shadow: 2px 2px #f3d7b5;
+        }
+
+        #cookiePic {
+            border: 5px solid #d2a679;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0,0,0,0.25);
+        }
+
+        button {
+            background-color: #d2691e;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            margin-top: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #b85c1c;
+        }
+
+        #joke {
+            background-color: #fff7ec;
+            border-left: 5px solid #d2a679;
+            padding: 10px;
+            margin-top: 15px;
+            font-style: italic;
+            border-radius: 4px;
+        }
+
+        input, textarea {
+            margin: 4px;
+            padding: 6px;
+            border: 2px solid #d2a679;
+            border-radius: 4px;
+            width: 250px;
+        }
+
+        textarea {
+            height: 60px;
+        }
+
+        ul {
+            background-color: #fff7ec;
+            padding: 10px;
+            border-radius: 6px;
+            border: 2px solid #d2a679;
+        }
+
+        li button {
+            margin-left: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🍪 Cookie Recipe Manager 🍪</h1>
+
+    <p><strong>Random Cookie-Themed Dessert:</strong></p>
+    <img id="cookiePic" width="250">
+    <br>
+    <button id="surpriseBtn">Surprise Me Cookie!</button>
+
+    <p id="joke"><em>Loading Baking Wisdom...</em></p>
+
+    <h2>Add a Recipe</h2>
+    <input id="name" placeholder="Recipe name"><br>
+    <input id="type" placeholder="Type (chewy, crispy...)"><br>
+    <input id="difficulty" type="number" min="1" max="5" placeholder="Difficulty"><br>
+
+    <textarea id="ingredients" placeholder="Ingredients (one per line)"></textarea><br>
+    <textarea id="instructions" placeholder="Instructions (one per line)"></textarea><br>
+
+    <button id="addBtn">Add Recipe</button>
+
+    <h2>Recipes</h2>
+
+    <label><strong>Sort Recipes:</strong></label>
+    <select id="sortSelect">
+        <option value="none">None</option>
+        <option value="name">A → Z (Name)</option>
+    </select>
+
+    <label><strong>Search Recipes:</strong></label>
+    <input id="searchInput" placeholder="Type to search...">
+
+    <ul id="recipe-list"></ul>
+
+<script>
+
+    //This creates a variable that keeps track of which recipe is currently being edited.
+    // When it's null, you're adding a new recipe. 
+    // When it holds an ID, you're editing an existing one (Part of *Ability to edit items*)
+    let editingId = null;
+
+    //This loads saved recipes from LocalStorage and saves updated recipes when changes are made. 
+    //This also keeps data after refreshing browser!
+    let recipes = JSON.parse(localStorage.getItem("recipes")) || [];
+    function saveRecipes() {
+        localStorage.setItem("recipes", JSON.stringify(recipes));
+    }
+
+    //This selects the <ul> where recipes are displayed and clears it 
+    //so the list can be rebuilt from the current data
+    function renderRecipes() {
+        const list = document.getElementById("recipe-list");
+        list.innerHTML = "";
+
+        // This is part of sorting
+        const sortValue = document.getElementById("sortSelect").value;
+        if (sortValue === "name") {
+            recipes.sort((a, b) => a.name.localeCompare(b.name));
+        }
+
+        // This is part of filtering
+        const searchValue = document.getElementById("searchInput").value.toLowerCase();
+        const filteredRecipes = recipes.filter(r =>
+            r.name.toLowerCase().includes(searchValue)
+        );
+
+        // This is part of rendering filtered list
+        filteredRecipes.forEach(recipe => {
+            const li = document.createElement("li");
+
+            li.innerHTML = `
+                <a href="recipe.html?id=${recipe.id}">
+                    ${recipe.name} (${recipe.type})
+                </a>
+                <button onclick="editRecipe(${recipe.id})">Edit</button>
+                <button onclick="deleteRecipe(${recipe.id})">Delete</button>
+            `;
+
+            list.appendChild(li);
+        });
+    }
+    //This listens for the user clicking the Add Recipe button to collect all the values typed into form
+    document.getElementById("addBtn").addEventListener("click", () => {
+        const name = document.getElementById("name").value;
+        const type = document.getElementById("type").value;
+        const difficulty = document.getElementById("difficulty").value;
+        const ingredients = document.getElementById("ingredients").value;
+        const instructions = document.getElementById("instructions").value;
+
+        //If put blank, it will give a message to enter name
+        if (!name) {
+            alert("Please enter a recipe name");
+            return;
+        }
+
+        //This checks whether the user is editing an existing recipe or adding a new one
+        if (editingId) {
+            const recipe = recipes.find(r => r.id === editingId);
+
+            recipe.name = name;
+            recipe.type = type;
+            recipe.difficulty = difficulty;
+            recipe.ingredients = ingredients;
+            recipe.instructions = instructions;
+
+            editingId = null;
+            document.getElementById("addBtn").textContent = "Add Recipe";
+        } else {
+            const newRecipe = {
+                id: Date.now(),
+                name,
+                type,
+                difficulty,
+                ingredients,
+                instructions,
+                date: new Date().toLocaleDateString()
+            };
+
+            recipes.push(newRecipe);
+        }
+
+        saveRecipes();
+        renderRecipes();
+
+        document.getElementById("name").value = "";
+        document.getElementById("type").value = "";
+        document.getElementById("difficulty").value = "";
+        document.getElementById("ingredients").value = "";
+        document.getElementById("instructions").value = "";
+    });
+
+    //This is to delete a recipe
+    function deleteRecipe(id) {
+        recipes = recipes.filter(r => r.id !== id);
+        saveRecipes();
+        renderRecipes();
+    }
+
+    //This is to edit a recipe
+    function editRecipe(id) {
+        const recipe = recipes.find(r => r.id === id);
+        if (!recipe) return;
+
+        document.getElementById("name").value = recipe.name;
+        document.getElementById("type").value = recipe.type;
+        document.getElementById("difficulty").value = recipe.difficulty;
+        document.getElementById("ingredients").value = recipe.ingredients;
+        document.getElementById("instructions").value = recipe.instructions;
+
+        editingId = id;
+        document.getElementById("addBtn").textContent = "Save Changes";
+    }
+
+    //Part of my fetch and API. This fetches a list of desserts from themealdb and filters for cookie‑related names, 
+    //randomly selects one, and updates the image on the page.
+    function loadCookieImage() {
+        fetch("https://www.themealdb.com/api/json/v1/1/filter.php?c=Dessert")
+            .then(res => res.json())
+            .then(data => {
+                const desserts = data.meals;
+                const cookieWords = ["cookie", "biscuit", "shortbread", "ginger", "macaroon", "macaron"];
+
+                const cookieDesserts = desserts.filter(d =>
+                    cookieWords.some(word =>
+                        d.strMeal.toLowerCase().includes(word)
+                    )
+                );
+
+                let chosen = cookieDesserts.length > 0
+                    ? cookieDesserts[Math.floor(Math.random() * cookieDesserts.length)]
+                    : desserts[Math.floor(Math.random() * desserts.length)];
+
+                document.getElementById("cookiePic").src = chosen.strMealThumb;
+            })
+            .catch(() => {
+                document.getElementById("cookiePic").src =
+                    "https://i.imgur.com/4ZQZ4ZC.png";
+            });
+    }
+
+    //Another fetch API API that gets a random piece of advice, 
+    //converts the response to JSON, and updates the page text to show “Baking Wisdom of the Day”
+    fetch("https://api.adviceslip.com/advice")
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById("joke").textContent =
+                "Baking Wisdom of the Day: " + data.slip.advice;
+        });
+
+    //This loads a random cookie themed image as soon as the page opens!
+    loadCookieImage();
+    //This adds a click event listener so “Surprise Me Cookie!” button loads a new random image 
+    //every time the user clicks it
+    document.getElementById("surpriseBtn").addEventListener("click", loadCookieImage);
+
+    // These are the event listeners for sorting and filtering
+    document.getElementById("sortSelect").addEventListener("change", renderRecipes);
+    document.getElementById("searchInput").addEventListener("input", renderRecipes);
+
+    renderRecipes();
+</script>
+
+</body>
+</html>
